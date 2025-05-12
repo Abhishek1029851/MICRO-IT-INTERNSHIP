@@ -1,29 +1,61 @@
 from tkinter import *
 from tkinter import messagebox
 
-r=Tk();r.title("Tic Tac Toe")
-p="X";b=[[""for _ in range(3)]for _ in range(3)]
+root = Tk()
+root.title("Tic Tac Toe")
 
-def c(i,j):
- global p
- if t[i][j]["text"]=="":t[i][j]["text"]=b[i][j]=p
- if any(all(b[i][x]==p for x in range(3))or all(b[x][i]==p for x in range(3))for i in range(3))or \
-    all(b[x][x]==p for x in range(3))or all(b[x][2-x]==p for x in range(3)):
-  messagebox.showinfo("Win",p+" wins!");res()
- elif all(b[i][j] for i in range(3)for j in range(3)):messagebox.showinfo("Draw","Tie!");res()
- else:p="O"if p=="X"else"X"
+player = "X"
 
-def res():
- global b,p;b=[[""for _ in range(3)]for _ in range(3)]
- for i in range(3):
-  for j in range(3):t[i][j].config(text="");p="X"
+board = [["" for _ in range(3)] for _ in range(3)]
 
-t=[[Button(r,text="",font=("",24),width=4,height=2,command=lambda i=i,j=j:c(i,j))
-   for j in range(3)]for i in range(3)]
+
+def handle_click(i, j):
+    global player
+    if buttons[i][j]["text"] == "":
+        buttons[i][j]["text"] = player
+        board[i][j] = player
+
+        if check_winner():
+            messagebox.showinfo("Game Over", f"Player {player} wins!")
+            reset_game()
+        elif all(board[row][col] != "" for row in range(3) for col in range(3)):
+            messagebox.showinfo("Game Over", "It's a tie!")
+            reset_game()
+        else:
+            player = "O" if player == "X" else "X"
+
+def check_winner():
+    
+    for i in range(3):
+        if all(board[i][j] == player for j in range(3)):
+            return True
+        if all(board[j][i] == player for j in range(3)):
+            return True
+    if all(board[i][i] == player for i in range(3)):
+        return True
+    if all(board[i][2 - i] == player for i in range(3)):
+        return True
+
+    return False
+
+def reset_game():
+    global board, player
+    board = [["" for _ in range(3)] for _ in range(3)]
+    player = "X"
+    for i in range(3):
+        for j in range(3):
+            buttons[i][j].config(text="")
+
+buttons = [[None for _ in range(3)] for _ in range(3)]
 for i in range(3):
- for j in range(3):t[i][j].grid(row=i,column=j)
+    for j in range(3):
+        btn = Button(root, text="", font=("Arial", 24), width=5, height=2,
+                     command=lambda i=i, j=j: handle_click(i, j))
+        btn.grid(row=i, column=j)
+        buttons[i][j] = btn
 
-r.mainloop()
+root.mainloop()
+
 reset_button = tk.Button(root, text="Restart Game", font=("Arial", 14), command=reset_board)
 reset_button.grid(row=4, column=0, columnspan=3, pady=5)
 
